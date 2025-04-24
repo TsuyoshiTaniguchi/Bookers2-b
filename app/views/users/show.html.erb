@@ -8,8 +8,55 @@
     </div>
     <div class='col-md-8 offset-md-1'>
       <h2>Books</h2>
-      <%= render 'books/index',books: @books %>
+      <%= render 'books/index', books: @books %>
+
+      <!-- 今日と前日の投稿数と比較差 -->
+      <h2>投稿数の前日比・前週比</h2>
+      <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>今日の投稿数</th>
+          <th>前日の投稿数</th>
+          <th>前日比</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= @today_count %></td>
+          <td><%= @yesterday_count %></td>
+          <td>
+            <% if @the_day_before.present? %>
+              <%= @the_day_before %>%
+            <% else %>
+              前日の投稿はありません
+            <% end %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+          <th>今週の投稿数</th>
+          <th>前週の投稿数</th>
+          <th>前週比</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= @this_week_count %></td>
+          <td><%= @last_week_count %></td>
+          <td>
+            <% if @the_week_before.present? %>
+              <%= @the_week_before %>%
+            <% else %>
+              先週の投稿はありません
+            <% end %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     </div>
   </div>
 </div>
-
