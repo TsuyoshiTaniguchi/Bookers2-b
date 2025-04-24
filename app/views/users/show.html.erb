@@ -10,53 +10,96 @@
       <h2>Books</h2>
       <%= render 'books/index', books: @books %>
 
-      <!-- 今日と前日の投稿数と比較差 -->
-      <h2>投稿数の前日比・前週比</h2>
-      <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>今日の投稿数</th>
-          <th>前日の投稿数</th>
-          <th>前日比</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><%= @today_count %></td>
-          <td><%= @yesterday_count %></td>
-          <td>
-            <% if @the_day_before.present? %>
-              <%= @the_day_before %>%
-            <% else %>
-              前日の投稿はありません
-            <% end %>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <h2>7日間分の投稿数</h2>
+<table class='table table-bordered'>
+  <thead>
+    <tr>
+      <% @chart_dates.each do |date| %>
+        <th><%= date %></th>
+      <% end %>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <% @chart_counts.each do |count| %>
+        <td><%= count %></td>
+      <% end %>
+    </tr>
+  </tbody>
+</table>
 
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>今週の投稿数</th>
-          <th>前週の投稿数</th>
-          <th>前週比</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><%= @this_week_count %></td>
-          <td><%= @last_week_count %></td>
-          <td>
-            <% if @the_week_before.present? %>
-              <%= @the_week_before %>%
-            <% else %>
-              先週の投稿はありません
-            <% end %>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    </div>
-  </div>
+
+<h4>7日間の投稿数の比較</h4>
+
+<canvas id="postsChart" style="width: 100%; max-height: 400px;"></canvas>
+
+<div id="chart-data"
+     data-dates="<%= @chart_dates.to_json %>"
+     data-counts="<%= @chart_counts.to_json %>">
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+<script>
+document.addEventListener("turbolinks:load", function() {
+  const chartDataElement = document.getElementById("chart-data");
+  const canvas = document.getElementById("postsChart");
+
+  if (!chartDataElement || !canvas) {
+    console.warn("Chart.js のデータが見つかりません");
+    return;
+  }
+
+  try {
+    const ctx = canvas.getContext("2d");
+    const dates = JSON.parse(chartDataElement.dataset.dates || "[]");
+    const counts = JSON.parse(chartDataElement.dataset.counts || "[]");
+
+    if (dates.length === 0 || counts.length === 0) {
+      console.warn("Chart.js のデータが空です");
+      return;
+    }
+
+    if (typeof window.myChart !== "undefined" && window.myChart instanceof Chart) {
+      window.myChart.destroy();
+    }
+
+    window.myChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: dates,
+        datasets: [{
+          label: '投稿した本の数',
+          data: counts,
+          borderColor: "rgba(0,0,255,1)",
+          backgroundColor: "rgba(0,0,0,0)",
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              stepSize: 1
+            }
+          }]
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Chart.js のデータ処理中にエラーが発生しました:", error);
+  }
+});
+</script>
+
+
+
+
+</div>
+</div>
 </div>

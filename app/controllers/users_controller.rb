@@ -6,30 +6,31 @@ class UsersController < ApplicationController
     @user = User.find(params[:id])
     @books = @user.books
     @book = Book.new
-
-    # 今日と昨日の投稿数
-    @today_book = @user.books.where(created_at: Time.zone.today.all_day)
-    @yesterday_book = @user.books.where(created_at: Time.zone.yesterday.all_day)
-
-    @today_count = @today_book.count
-    @yesterday_count = @yesterday_book.count
-    @the_day_before = @yesterday_count > 0 ? (@today_count.to_f / @yesterday_count.to_f * 100).round : nil
-
-    # 今週と前週の投稿数
-    start_of_week = Time.zone.today.beginning_of_week(:saturday)
-    end_of_week = Time.zone.today.end_of_week(:friday)
-    start_of_last_week = start_of_week - 7.days
-    end_of_last_week = end_of_week - 7.days
-
-    @this_week_book = @user.books.where(created_at: start_of_week..end_of_week)
-    @last_week_book = @user.books.where(created_at: start_of_last_week..end_of_last_week)
-
-    @this_week_count = @this_week_book.count
-    @last_week_count = @last_week_book.count
-    @the_week_before = @last_week_count > 0 ? (@this_week_count.to_f / @last_week_count.to_f * 100).round : nil
+  
+    # **過去7日分の投稿数**
+    @past_week_counts = (0..6).map do |i|
+      date = Time.zone.today - i.days
+      label = case i
+              when 0 then "今日"
+              when 1 then "1日前"
+              when 2 then "2日前"
+              when 3 then "3日前"
+              when 4 then "4日前"
+              when 5 then "5日前"
+              when 6 then "6日前"
+              end
+      count = @user.books.where(created_at: date.all_day).count || 0
+      { date: label, count: count }
+    end.reverse
+  
+    @chart_dates = @past_week_counts.map { |data| data[:date] }
+    @chart_counts = @past_week_counts.map { |data| data[:count] }
   end
+  
+  
+  
 
-    
+
 
   
 
