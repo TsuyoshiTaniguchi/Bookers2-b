@@ -41,6 +41,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
+
 <script>
 document.addEventListener("turbolinks:load", function() {
   const chartDataElement = document.getElementById("chart-data");
@@ -97,6 +98,8 @@ document.addEventListener("turbolinks:load", function() {
 });
 </script>
 
+<div id="chart-data" data-dates="<%= @chart_dates.to_json %>" data-counts="<%= @chart_counts.to_json %>"></div>
+<canvas id="postsChart"></canvas>
 
 
 

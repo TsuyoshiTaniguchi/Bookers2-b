@@ -3,6 +3,7 @@
 // a relevant structure within app/javascript and only use these pack files to reference
 // that code so it'll be compiled.
 
+// Webpack で自動コンパイルされるファイル
 import Rails from "@rails/ujs";
 import Turbolinks from "turbolinks";
 import * as ActiveStorage from "@rails/activestorage";
@@ -13,11 +14,16 @@ import "popper.js";
 import "bootstrap";
 import "../stylesheets/application";
 
+// ✅ Chart.js のインポートと登録の最適化
+import { Chart, registerables } from "chart.js";
+Chart.register(...registerables);
+
 Rails.start();
 Turbolinks.start();
 ActiveStorage.start();
 
-$(document).on("ajax:success", ".favorite-btn", function(event, data) {
+// Ajax のイベント処理
+$(document).on("ajax:success", ".favorite-btn", function (event, data) {
   console.log("Ajaxリクエスト成功", data);
   var bookId = data.book_id;
   var favoritesCount = data.favorites_count;
@@ -26,7 +32,8 @@ $(document).on("ajax:success", ".favorite-btn", function(event, data) {
   $("#book_" + bookId).find(".favorite-btn").replaceWith(data.favorite_button_html);
 });
 
-document.addEventListener("turbolinks:load", function() {
+// Chart.js のグラフ描画処理
+document.addEventListener("turbolinks:load", function () {
   const chartDataElement = document.getElementById("chart-data");
   const canvas = document.getElementById("postsChart");
 
@@ -40,15 +47,20 @@ document.addEventListener("turbolinks:load", function() {
     const dates = JSON.parse(chartDataElement.dataset.dates || "[]");
     const counts = JSON.parse(chartDataElement.dataset.counts || "[]");
 
+    console.log("chart_dates:", dates);
+    console.log("chart_counts:", counts);
+
     if (dates.length === 0 || counts.length === 0) {
       console.warn("Chart.js のデータが空です");
       return;
     }
 
-    if (typeof window.myChart !== "undefined" && window.myChart instanceof Chart) {
+    // ✅ 既存のグラフを適切に破棄
+    if (window.myChart) {
       window.myChart.destroy();
     }
 
+    // ✅ Chart.js のスケール設定修正 (yAxes → y)
     window.myChart = new Chart(ctx, {
       type: "line",
       data: {
@@ -65,13 +77,12 @@ document.addEventListener("turbolinks:load", function() {
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true, // ✅ グラフのアスペクト比を維持
+        maintainAspectRatio: false,
         scales: {
           y: {
+            beginAtZero: true,
+            stepSize: 1,
             ticks: {
-              min: 0, // 軸の最小値
-              max: 10, // 軸の最大値
-              stepSize: 1,
               callback: function (value) {
                 return value;
               },

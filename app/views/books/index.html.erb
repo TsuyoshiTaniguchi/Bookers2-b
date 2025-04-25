@@ -10,6 +10,25 @@
     <div class='col-md-8 offset-md-1'>
       <h2>Books</h2>
       <%= render 'index', books: @books%>
-    </div>
+
+      <%= form_with url: user_search_path, method: :get, remote: true do |f| %>
+  <%= f.hidden_field :user_id, value: @user.id %>
+  <%= f.date_field :created_at %>
+  <%= f.submit '検索', class: 'btn btn-primary' %>
+<% end %>
+
+
+<div id="search_result">
+<% if @search_book.present? %>
+  <%= render 'search', search_book: @search_book %>
+<% end %>
+</div>
+
+<div id="chart-data" data-dates="<%= @chart_dates.to_json %>" data-counts="<%= @chart_counts.to_json %>"></div>
+<canvas id="postsChart"></canvas>
+
+
+  
+
   </div>
 </div>
